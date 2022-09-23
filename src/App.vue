@@ -2,65 +2,59 @@
   import SignIn from './components/SignIn.vue'
   import { createClient } from '@supabase/supabase-js'
   import { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/SupabaseAuthClient'
+  
+  supabase.auth.onAuthStateChange((event, session) => { 
+    if(session==null){ 
+      document.getElementById('status').innerHTML='You are not logged !!!'; 
+    } else{ 
+      //alert('session value: ' + JSON.stringify(session)) 
+      document.getElementById('status').innerHTML='You are logged with the email: ' + session.user.email; 
+    } 
+  })
   </script>
   
   <template>    
-    <header>
-      <router-link to="/">Go to Home</router-link>
-      <img alt="Logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-      <div class="wrapper" id="signOut">
-        <div><SignIn msg="User, please sign in !" /></div>
-        <label>email: </label><br>
-        <input type="email" required v-model="email" placeholder="username@domain.tld"><br>
-        <label>password: </label><br>
-        <input type="password" required v-model="passwd" ><br>
-        <button v-on:click="register()">Sign Up</button>
-        <button v-on:click="login()">Sign In</button>
-        <button v-on:click="reset()">Reset</button>
-        <button v-on:click="logout()">Sign out</button>
-        <p>
-        <label id="status"> You are not yet connected </label><br>  
-        </p>
-      </div>
-    </header>
     <h1>{{ msg }}</h1> 
-  <p> 
-    Please login if you have an account or register : 
-  </p> 
-  <button @click="login()">Sign In</button><br> 
-  <button @click="logout()">Sign Out</button><br> 
-  <label id="status">You are not yet logged !  </label> 
-
-    <main>
-      
-    </main>
-
+      <p> 
+        Please login if you have an account or register : 
+      </p> 
+      <button @click="login()">Sign In</button><br> 
+      <button @click="logout()">Sign Out</button><br> 
+      <label id="status">You are not yet logged !  </label> 
   </template>
   
   <script>
-  const SUPABASE_URL = 'https://dismjjqyqfnlmbjsqgka.supabase.co'
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpc21qanF5cWZubG1ianNxZ2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjI5OTI1MzUsImV4cCI6MTk3ODU2ODUzNX0.aIrq-nR8QuqpsgwfEFXEpsxYGLP9w9sh2y9paCIQWL8'
+  const SUPABASE_URL = 'https://wfsrjkfzttgvmxhmvlgj.supabase.co'
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indmc3Jqa2Z6dHRndm14aG12bGdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjMzMzcxODcsImV4cCI6MTk3ODkxMzE4N30.gZco8C16mob_K3MOKsNF_3_iS3tag4SP_CvjjseLPKo'
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
   export default {
     methods: {  
-     
-  }
-  
-  
- 
-supabase.auth.onAuthStateChange((event, session) => { 
-  if(session==null){ 
-    document.getElementById('status').innerHTML='You are not logged !!!'; 
-  } else{ 
-    //alert('session value: ' + JSON.stringify(session)) 
-    document.getElementById('status').innerHTML='You are logged with the email: ' + session.user.email; 
-  } 
-})
-
-
+    //this method allows to release the connexion with the Google account 
+    async logout(){ 
+          try { 
+            const { user, session, error } = await supabase.auth.signOut(); 
+            if (error) throw error; 
+            document.getElementById('status').innerHTML='You are disconnected !' 
+          } catch (error) { 
+            alert(error.error_description || error.message); 
+          }  
+        }, 
+        //this method allows to log in the system using Google provider 
+         
+    async login(){ 
+          try { 
+            const { user, session, error } = await supabase.auth.signIn({ 
+              provider: 'google', 
+            }); 
+            if (error) throw error; 
+          } catch (error) { 
+            alert(error.error_description || error.message); 
+          }  
+        }
+    }
+  }  
   </script>
   
-
   <style>
   @import './assets/base.css';
   header .hidden {
